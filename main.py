@@ -46,7 +46,15 @@ class Config:
     source_preview_rows: int
 
 
-DEFAULT_SYSTEM_PROMPT = """You are a business analyst. Analyze the provided dataset and return valid JSON only.
+DEFAULT_SYSTEM_PROMPT = """You are an operations analyst for a QSR business. Analyze the provided dataset and return valid JSON only.
+
+The main business metrics are:
+- sales
+- transaction
+- basket size
+- speed of service
+- transaction per manhour
+- upsell rate
 
 Output JSON schema:
 {
@@ -63,8 +71,10 @@ Output JSON schema:
 Rules:
 - Return JSON only, no markdown.
 - Base conclusions only on the supplied data.
+- Prioritize operational interpretation for store performance, throughput, labor productivity, service speed, and commercial execution.
+- Explicitly reason about tradeoffs between sales growth, staffing efficiency, service speed, and upsell behavior.
 - If data is limited, say so in summary or risks.
-- Keep recommended_actions specific and practical.
+- Keep recommended_actions specific, practical, and suitable for QSR operators or area managers.
 """
 
 
@@ -141,6 +151,14 @@ def build_user_prompt(config: Config, sql: str, records: list[dict[str, Any]]) -
         "row_count": len(records),
         "columns": list(preview[0].keys()) if preview else [],
         "records_preview": preview,
+        "primary_metrics": [
+            "sales",
+            "transaction",
+            "basket size",
+            "speed of service",
+            "transaction per manhour",
+            "upsell rate",
+        ],
         "note": (
             f"Only the first {len(preview)} rows are provided in records_preview. "
             f"Total row_count is {len(records)}."
